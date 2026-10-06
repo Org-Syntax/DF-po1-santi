@@ -35,10 +35,10 @@ jobs:
 
   desplegar-pagina:
     needs: ejecutar-script-python
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
       - name: Obtener codigo del repositorio
         uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
       - name: Subir artefacto para Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'yamal'
+          path: '.'
 
       - name: Desplegar en GitHub Pages
         id: deployment

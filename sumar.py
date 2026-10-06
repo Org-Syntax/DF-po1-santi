@@ -1,17 +1,8 @@
-import random
-
-def main():
-    num1 = random.randint(1, 100)
-    num2 = random.randint(1, 100)
-    suma = num1 + num2
-    
-    print("----------------------------------------")
-    print("🚀 EJECUCIÓN DESDE GITHUB ACTIONS 🚀")
-    print("----------------------------------------")
-    print(f"Número 1 asignado: {num1}")
-    print(f"Número 2 asignado: {num2}")
-    print(f"Resultado de la suma: {num1} + {num2} = {suma}")
-    print("----------------------------------------")
+def sumar(a, b):
+    return a + b
 
 if __name__ == "__main__":
-    main()
+    num1 = 16
+    num2 = 16
+    resultado = sumar(num1, num2)
+    print(f"La suma de {num1} + {num2} es: {resultado}")
