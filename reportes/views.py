@@ -1,0 +1,27 @@
+from django.shortcuts import render, redirect
+from .models import ReporteVial
+
+def index(request):
+    if request.method == 'POST':
+        tipo = request.POST.get('tipo_incidente')
+        desc = request.POST.get('descripcion')
+        lat = request.POST.get('latitud')
+        lon = request.POST.get('longitud')
+        
+        foto = request.FILES.get('foto')
+        video = request.FILES.get('video')
+        audio = request.FILES.get('audio')
+
+        ReporteVial.objects.create(
+            tipo_incidente=tipo,
+            descripcion=desc,
+            latitud=float(lat) if lat else None,
+            longitud=float(lon) if lon else None,
+            foto=foto,
+            video=video,
+            audio=audio
+        )
+        return redirect('index')
+
+    reportes = ReporteVial.objects.all().order_by('-fecha_creacion')
+    return render(request, 'index.html', {'reportes': reportes})

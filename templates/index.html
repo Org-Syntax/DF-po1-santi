@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Reportes Viales</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body { background: #0f172a; color: #f8fafc; padding: 1.5rem; display: flex; justify-content: center; }
+    .container { width: 100%; max-width: 550px; background: #1e293b; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    h1 { font-size: 1.5rem; color: #f59e0b; text-align: center; margin-bottom: 1rem; }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: #cbd5e1; }
+    select, textarea, input[type="file"] { width: 100%; padding: 0.7rem; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #fff; }
+    button { width: 100%; padding: 0.8rem; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-gps { background: #10b981; color: white; margin-bottom: 0.5rem; }
+    .btn-submit { background: #f59e0b; color: #0f172a; font-size: 1rem; margin-top: 1rem; }
+    .geo-status { background: #0f172a; padding: 0.6rem; border-radius: 6px; font-size: 0.8rem; color: #94a3b8; text-align: center; }
+    hr { margin: 1.5rem 0; border-color: #334155; }
+    .historial-item { background: #0f172a; padding: 1rem; border-radius: 10px; margin-bottom: 1rem; border: 1px solid #334155; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚨 Reporte Vial en Vivo</h1>
+    
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Tipo de Evento:</label>
+        <select name="tipo_incidente">
+          <option value="👮 Retén / Agentes">👮 Retén / Agentes de Tránsito</option>
+          <option value="🚨 Accidente">🚨 Accidente de Tránsito</option>
+          <option value="🚗 Trancón">🚗 Trancón / Congestión Alta</option>
+          <option value="🚧 Obras">🚧 Obras en la Vía</option>
+          <option value="⚠️ Peligro">⚠️ Peligro en Calzada</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Descripción / Observaciones:</label>
+        <textarea name="descripcion" rows="2" placeholder="Detalles de la situación..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Ubicación GPS:</label>
+        <button type="button" class="btn-gps" onclick="obtenerGPS()">📡 Obtener Mi Ubicación</button>
+        <input type="hidden" name="latitud" id="latitud">
+        <input type="hidden" name="longitud" id="longitud">
+        <div id="geoResult" class="geo-status">GPS no capturado</div>
+      </div>
+
+      <div class="form-group">
+        <label>📸 Foto:</label>
+        <input type="file" name="foto" accept="image/*">
+      </div>
+
+      <div class="form-group">
+        <label>🎥 Video:</label>
+        <input type="file" name="video" accept="video/*">
+      </div>
+
+      <div class="form-group">
+        <label>🎙️ Audio / Voz:</label>
+        <input type="file" name="audio" accept="audio/*">
+      </div>
+
+      <button type="submit" class="btn-submit">💾 Guardar Reporte</button>
+    </form>
+
+    <hr>
+
+    <h2>📋 Historial ({{ reportes|length }})</h2>
+    {% for r in reportes %}
+      <div class="historial-item">
+        <h3 style="color:#f59e0b;">{{ r.tipo_incidente }}</h3>
+        <p>{{ r.descripcion }}</p>
+        {% if r.latitud and r.longitud %}
+          <p><a href="https://www.google.com/maps/search/?api=1&query={{ r.latitud|stringformat:'.6f' }},{{ r.longitud|stringformat:'.6f' }}" target="_blank" style="color:#38bdf8;">🗺️ Ver en Google Maps</a></p>
+        {% endif %}
+        {% if r.foto %}<img src="{{ r.foto.url }}" style="width:100%; margin-top:0.5rem; border-radius:6px;">{% endif %}
+        {% if r.video %}
+          <video controls playsinline style="width:100%; margin-top:0.5rem; border-radius:6px;">
+            <source src="{{ r.video.url }}">
+            Tu navegador no soporta la reproducción de este video.
+          </video>
+        {% endif %}
+        {% if r.audio %}
+          <audio controls style="width:100%; margin-top:0.5rem;">
+            <source src="{{ r.audio.url }}">
+            Tu navegador no soporta la reproducción de audio.
+          </audio>
+        {% endif %}
+        <small style="color:#64748b; display:block; margin-top:0.5rem;">{{ r.fecha_creacion }}</small>
+      </div>
+    {% empty %}
+      <p style="color:#64748b; font-size:0.9rem;">No hay reportes en la base de datos.</p>
+    {% endfor %}
+  </div>
+
+  <script>
+    function obtenerGPS() {
+      const geoResult = document.getElementById('geoResult');
+      if (!navigator.geolocation) {
+        geoResult.innerText = "GPS no soportado en este navegador.";
+        return;
+      }
+      geoResult.innerText = "Obteniendo coordenadas...";
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude.toFixed(6);
+          const lon = pos.coords.longitude.toFixed(6);
+          
+          document.getElementById('latitud').value = lat;
+          document.getElementById('longitud').value = lon;
+          geoResult.innerHTML = `✅ Lat: ${lat}, Lon: ${lon}`;
+        },
+        (err) => { geoResult.innerText = "❌ Error al capturar GPS."; }
+      );
+    }
+  </script>
+</body>
+</html>
