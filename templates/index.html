@@ -4,10 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Reportes Viales</title>
+
+  <!-- Librería oficial de Google para Renderizar Objetos 3D Interactivos -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
     body { background: #0f172a; color: #f8fafc; padding: 1.5rem; display: flex; justify-content: center; }
     .container { width: 100%; max-width: 550px; background: #1e293b; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    
+    /* Contenedor del Objeto 3D en la Interfaz */
+    .header-3d {
+      width: 100%;
+      height: 210px;
+      margin-bottom: 1.2rem;
+      border-radius: 12px;
+      overflow: hidden;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, #0f172a 85%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    }
+    
+    model-viewer {
+      width: 100%;
+      height: 100%;
+    }
+
     h1 { font-size: 1.5rem; color: #f59e0b; text-align: center; margin-bottom: 1rem; }
     .form-group { margin-bottom: 1rem; }
     label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: #cbd5e1; }
@@ -18,11 +43,70 @@
     .geo-status { background: #0f172a; padding: 0.6rem; border-radius: 6px; font-size: 0.8rem; color: #94a3b8; text-align: center; }
     hr { margin: 1.5rem 0; border-color: #334155; }
     .historial-item { background: #0f172a; padding: 1rem; border-radius: 10px; margin-bottom: 1rem; border: 1px solid #334155; }
+    
+    /* Contenedor y Botones para Documentos PDF */
+    .pdf-container {
+      margin-top: 0.8rem;
+      padding: 0.8rem;
+      background: #1e293b;
+      border-radius: 8px;
+      border: 1px dashed #ef4444;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .pdf-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-pdf {
+      flex: 1;
+      text-align: center;
+      padding: 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-decoration: none;
+      color: white;
+    }
+    .btn-pdf-view { background: #3b82f6; }
+    .btn-pdf-download { background: #ef4444; }
   </style>
 </head>
 <body>
   <div class="container">
+    
+    <!-- BANNER CON MODELO 3D INTERACTIVO DE TRANSPORTE / VÍAS -->
+    <div class="header-3d">
+      <model-viewer 
+        src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/CesiumMilkTruck/glTF-Binary/CesiumMilkTruck.glb" 
+        alt="Modelo 3D de Vehículo de Tránsito" 
+        auto-rotate 
+        camera-controls 
+        shadow-intensity="1.5"
+        exposure="1.2">
+      </model-viewer>
+    </div>
+
     <h1>🚨 Reporte Vial en Vivo</h1>
+
+    <!-- TARJETA DESTACADA: NORMATIVA Y LEYES DE TRÁNSITO -->
+    <div style="background: #0f172a; border: 1px solid #38bdf8; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+      <h3 style="color: #38bdf8; font-size: 1rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
+        📘 Normativa y Código de Tránsito
+      </h3>
+      <p style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.8rem;">
+        Consulta las normas de circulación, derechos, deberes y el Código Nacional de Tránsito de Colombia.
+      </p>
+      <div style="display: flex; gap: 0.5rem;">
+        <a href="/static/pdf/codigo_transito_colombia.pdf" target="_blank" style="flex: 1; text-align: center; background: #0284c7; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">
+          👁️ Leer Normas
+        </a>
+        <a href="/static/pdf/codigo_transito_colombia.pdf" download style="flex: 1; text-align: center; background: #0369a1; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">
+          📥 Descargar PDF
+        </a>
+      </div>
+    </div>
     
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
@@ -65,6 +149,12 @@
         <input type="file" name="audio" accept="audio/*">
       </div>
 
+      <!-- 📄 NUEVO CAMPO PARA SUBIR CROQUIS / INFORME EN PDF -->
+      <div class="form-group">
+        <label>📄 Documento PDF (Croquis / Informe Vial):</label>
+        <input type="file" name="pdf" accept=".pdf,application/pdf">
+      </div>
+
       <button type="submit" class="btn-submit">💾 Guardar Reporte</button>
     </form>
 
@@ -78,19 +168,34 @@
         {% if r.latitud and r.longitud %}
           <p><a href="https://www.google.com/maps/search/?api=1&query={{ r.latitud|stringformat:'.6f' }},{{ r.longitud|stringformat:'.6f' }}" target="_blank" style="color:#38bdf8;">🗺️ Ver en Google Maps</a></p>
         {% endif %}
+
         {% if r.foto %}<img src="{{ r.foto.url }}" style="width:100%; margin-top:0.5rem; border-radius:6px;">{% endif %}
+
         {% if r.video %}
           <video controls playsinline style="width:100%; margin-top:0.5rem; border-radius:6px;">
             <source src="{{ r.video.url }}">
             Tu navegador no soporta la reproducción de este video.
           </video>
         {% endif %}
+
         {% if r.audio %}
           <audio controls style="width:100%; margin-top:0.5rem;">
             <source src="{{ r.audio.url }}">
             Tu navegador no soporta la reproducción de audio.
           </audio>
         {% endif %}
+
+        <!-- 📄 MÓDULO DE VISUALIZACIÓN Y DESCARGA DE PDF EN EL HISTORIAL -->
+        {% if r.pdf %}
+          <div class="pdf-container">
+            <span style="font-size: 0.85rem; color: #f8fafc;">📄 Documento PDF Adjunto</span>
+            <div class="pdf-actions">
+              <a href="{{ r.pdf.url }}" target="_blank" class="btn-pdf btn-pdf-view">👁️ Ver PDF</a>
+              <a href="{{ r.pdf.url }}" download class="btn-pdf btn-pdf-download">📥 Descargar PDF</a>
+            </div>
+          </div>
+        {% endif %}
+
         <small style="color:#64748b; display:block; margin-top:0.5rem;">{{ r.fecha_creacion }}</small>
       </div>
     {% empty %}

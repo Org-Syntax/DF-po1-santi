@@ -11,6 +11,7 @@ def index(request):
         foto = request.FILES.get('foto')
         video = request.FILES.get('video')
         audio = request.FILES.get('audio')
+        pdf = request.FILES.get('pdf') # 📄 Capturar el archivo PDF enviado desde el formulario
 
         ReporteVial.objects.create(
             tipo_incidente=tipo,
@@ -19,7 +20,8 @@ def index(request):
             longitud=float(lon) if lon else None,
             foto=foto,
             video=video,
-            audio=audio
+            audio=audio,
+            pdf=pdf # 📄 Guardar el PDF en la base de datos
         )
         return redirect('index')
 

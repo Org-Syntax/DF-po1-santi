@@ -18,6 +18,9 @@ class ReporteVial(models.Model):
     video = models.FileField(upload_to='videos/', blank=True, null=True)
     audio = models.FileField(upload_to='audios/', blank=True, null=True)
     
+    
+    pdf = models.FileField(upload_to='pdfs/', blank=True, null=True)
+    
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
