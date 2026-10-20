@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -99,10 +100,10 @@
         Consulta las normas de circulación, derechos, deberes y el Código Nacional de Tránsito de Colombia.
       </p>
       <div style="display: flex; gap: 0.5rem;">
-        <a href="/static/pdf/codigo_transito_colombia.pdf" target="_blank" style="flex: 1; text-align: center; background: #0284c7; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">
+        <a href="{% static 'pdf/codigo_transito_colombia.pdf' %}" target="_blank" style="flex: 1; text-align: center; background: #0284c7; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">
           👁️ Leer Normas
         </a>
-        <a href="/static/pdf/codigo_transito_colombia.pdf" download style="flex: 1; text-align: center; background: #0369a1; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">
+        <a href="{% static 'pdf/codigo_transito_colombia.pdf' %}" download style="flex: 1; text-align: center; background: #0369a1; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">
           📥 Descargar PDF
         </a>
       </div>
@@ -149,7 +150,7 @@
         <input type="file" name="audio" accept="audio/*">
       </div>
 
-      <!-- 📄 NUEVO CAMPO PARA SUBIR CROQUIS / INFORME EN PDF -->
+      <!-- 📄 CAMPO PARA SUBIR CROQUIS / INFORME EN PDF -->
       <div class="form-group">
         <label>📄 Documento PDF (Croquis / Informe Vial):</label>
         <input type="file" name="pdf" accept=".pdf,application/pdf">
