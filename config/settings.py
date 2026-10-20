@@ -54,10 +54,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# ==========================================
+# CONFIGURACIÓN DE MULTIPLES BASES DE DATOS
+# ==========================================
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'postgres_sena': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'db_reportes_sena',
+        'USER': 'postgres',
+        'PASSWORD': 'root',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    },
+    'sqlite_alternativa': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db_alternativa.sqlite3',
     }
 }
 
