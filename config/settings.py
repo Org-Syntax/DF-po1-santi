@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -62,14 +63,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    'postgres_sena': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db_reportes_sena',
-        'USER': 'postgres',
-        'PASSWORD': 'root',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    },
+    'postgres_sena': dj_database_url.config(
+        default='postgres://postgres:root@127.0.0.1:5432/db_reportes_sena',
+        env='POSTGRES_SENA_URL',
+        conn_max_age=600
+    ),
     'sqlite_alternativa': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db_alternativa.sqlite3',
