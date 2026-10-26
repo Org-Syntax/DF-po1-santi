@@ -76,6 +76,21 @@ DATABASES = {
     }
 }
 
+# URI de conexión para MongoDB Atlas (NoSQL)
+MONGO_URI = os.getenv('MONGO_URI', 'mongodb+srv://tu_usuario:tu_password@cluster0.mongodb.net/?retryWrites=true&w=majority')
+
+# ==========================================
+# CONFIGURACIÓN DE FIREBASE ADMIN SDK
+# ==========================================
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+FIREBASE_KEY_PATH = BASE_DIR / 'firebase_key.json'
+
+if FIREBASE_KEY_PATH.exists() and not firebase_admin._apps:
+    cred = credentials.Certificate(str(FIREBASE_KEY_PATH))
+    firebase_admin.initialize_app(cred)
+
 AUTH_PASSWORD_VALIDATORS = []
 
 LANGUAGE_CODE = 'es-co'

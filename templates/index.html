@@ -91,6 +91,19 @@
 
     <h1>🚨 Reporte Vial en Vivo</h1>
 
+    <!-- 🗄️ SELECTOR DE BASES DE DATOS (REQUERIMIENTO SENA) -->
+    <div style="background: #0f172a; border: 1px solid #f59e0b; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+      <form method="GET" action="">
+        <label for="db_target" style="color: #f59e0b; font-weight: bold; margin-bottom: 0.5rem;">🗄️ Motor de Base de Datos Activo:</label>
+        <select name="db_target" id="db_target" onchange="this.form.submit()">
+          <option value="default" {% if db_elegida == 'default' %}selected{% endif %}>SQLite (Local Default)</option>
+          <option value="postgres_sena" {% if db_elegida == 'postgres_sena' %}selected{% endif %}>PostgreSQL (pgAdmin - Sena)</option>
+          <option value="sqlite_alternativa" {% if db_elegida == 'sqlite_alternativa' %}selected{% endif %}>SQLite Alternativa</option>
+          <option value="mongodb" {% if db_elegida == 'mongodb' %}selected{% endif %}>MongoDB Atlas (NoSQL)</option>
+        </select>
+      </form>
+    </div>
+
     <!-- TARJETA DESTACADA: NORMATIVA Y LEYES DE TRÁNSITO -->
     <div style="background: #0f172a; border: 1px solid #38bdf8; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
       <h3 style="color: #38bdf8; font-size: 1rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -110,7 +123,7 @@
     </div>
     
     <form method="POST" enctype="multipart/form-data">
-      {% csrf_token %}
+      {% csrf_token %>
       <div class="form-group">
         <label>Tipo de Evento:</label>
         <select name="tipo_incidente">
@@ -156,7 +169,7 @@
         <input type="file" name="pdf" accept=".pdf,application/pdf">
       </div>
 
-      <button type="submit" class="btn-submit">💾 Guardar Reporte</button>
+      <button type="submit" class="btn-submit">💾 Guardar Reporte en ({{ db_elegida }})</button>
     </form>
 
     <hr>
@@ -200,7 +213,7 @@
         <small style="color:#64748b; display:block; margin-top:0.5rem;">{{ r.fecha_creacion }}</small>
       </div>
     {% empty %}
-      <p style="color:#64748b; font-size:0.9rem;">No hay reportes en la base de datos.</p>
+      <p style="color:#64748b; font-size:0.9rem;">No hay reportes en la base de datos "{{ db_elegida }}".</p>
     {% endfor %}
   </div>
 
