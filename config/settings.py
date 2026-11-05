@@ -56,42 +56,59 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ==========================================
-# CONFIGURACIÓN DE MULTIPLES BASES DE DATOS
+# CONFIGURACIÓN DE BASES DE DATOS
 # ==========================================
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    'postgres_sena': dj_database_url.config(
-        default='postgres://postgres:root@127.0.0.1:5432/db_reportes_sena',
-        env='POSTGRES_SENA_URL',
-        conn_max_age=600
-    ),
+    'postgres_sena': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'db_reportes_sena',
+        'USER': 'postgres',
+        'PASSWORD': '123456',
+        'HOST': '127.0.0.1',
+        'PORT': '5433',
+    },
     'sqlite_alternativa': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db_alternativa.sqlite3',
+    },
+    'mysql_db': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'despliegue',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'OPTIONS': {
+            'sql_mode': 'traditional',
+        }
     }
 }
 
 # URI de conexión para MongoDB Atlas (NoSQL)
-MONGO_URI = os.getenv('MONGO_URI', 'mongodb+srv://tu_usuario:tu_password@cluster0.mongodb.net/?retryWrites=true&w=majority')
+MONGO_URI = os.getenv('MONGO_URI', 'mongodb+srv://mendezvelascoandressantiago29_db_user:12345@cluster0.w7lxlje.mongodb.net/despliegue_atlas?retryWrites=true&w=majority')
 
 # ==========================================
-# CONFIGURACIÓN DE FIREBASE ADMIN SDK
+# CONFIGURACIÓN DE FIREBASE ADMIN SDK & STORAGE
 # ==========================================
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials
 
 FIREBASE_KEY_PATH = BASE_DIR / 'firebase_key.json'
 
 if FIREBASE_KEY_PATH.exists() and not firebase_admin._apps:
     cred = credentials.Certificate(str(FIREBASE_KEY_PATH))
-    firebase_admin.initialize_app(cred)
+    # Inicializamos con el Storage Bucket correcto de tu proyecto de Firebase
+    firebase_admin.initialize_app(cred, {
+        'storageBucket': 'sistema-reportes-viales.appspot.com' 
+    })
 
 AUTH_PASSWORD_VALIDATORS = []
 
-LANGUAGE_CODE = 'es-co'
+LANGUAGE_CODE = 'es-co' 
 TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True

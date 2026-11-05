@@ -96,10 +96,10 @@
       <form method="GET" action="">
         <label for="db_target" style="color: #f59e0b; font-weight: bold; margin-bottom: 0.5rem;">🗄️ Motor de Base de Datos Activo:</label>
         <select name="db_target" id="db_target" onchange="this.form.submit()">
-          <option value="default" {% if db_elegida == 'default' %}selected{% endif %}>SQLite (Local Default)</option>
+          <option value="mysql_db" {% if db_elegida == 'mysql_db' %}selected{% endif %}>MySQL (Local - Despliegue)</option>
           <option value="postgres_sena" {% if db_elegida == 'postgres_sena' %}selected{% endif %}>PostgreSQL (pgAdmin - Sena)</option>
           <option value="sqlite_alternativa" {% if db_elegida == 'sqlite_alternativa' %}selected{% endif %}>SQLite Alternativa</option>
-          <option value="mongodb" {% if db_elegida == 'mongodb' %}selected{% endif %}>MongoDB Atlas (NoSQL)</option>
+          <option value="mongodb" {% if db_elegida == 'mongodb' %}selected{% endif %}>MongoDB Atlas (Nube NoSQL)</option>
         </select>
       </form>
     </div>
@@ -121,7 +121,8 @@
         </a>
       </div>
     </div>
-    
+
+    <!-- FORMULARIO DE REGISTRO -->
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="form-group">
