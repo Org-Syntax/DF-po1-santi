@@ -2,8 +2,7 @@ from django.shortcuts import render, redirect
 from .models import ReporteVial
 from pymongo import MongoClient
 from django.conf import settings
-from firebase_admin import firestore
-from .utils import subir_a_firebase_storage  # <--- Importamos nuestra función de subida
+
 
 def index(request):
     # 1. Capturar la base de datos seleccionada (por defecto 'mysql_db')
@@ -17,7 +16,7 @@ def index(request):
         desc = request.POST.get('descripcion')
         lat = request.POST.get('latitud')
         lon = request.POST.get('longitud')
-        
+
         foto = request.FILES.get('foto')
         video = request.FILES.get('video')
         audio = request.FILES.get('audio')
@@ -33,39 +32,28 @@ def index(request):
                     "descripcion": desc,
                     "latitud": float(lat) if lat else None,
                     "longitud": float(lon) if lon else None,
-                })
-            elif db_elegida == 'firebase':
-                # Guardado en Firebase Firestore (Cloud NoSQL)
-                db_firestore = firestore.client()
-                db_firestore.collection('reportes_viales').add({
-                    "tipo_incidente": tipo,
-                    "descripcion": desc,
-                    "latitud": float(lat) if lat else None,
-                    "longitud": float(lon) if lon else None,
-                    "fecha_creacion": firestore.SERVER_TIMESTAMP
+                    "foto": foto.name if foto else None,
+                    "video": video.name if video else None,
+                    "audio": audio.name if audio else None,
+                    "pdf": pdf.name if pdf else None,
                 })
             else:
-                # --- SUBIR ARCHIVOS A FIREBASE STORAGE ANTES DE GUARDAR EN SQL ---
-                url_foto = subir_a_firebase_storage(foto)
-                url_video = subir_a_firebase_storage(video)
-                url_audio = subir_a_firebase_storage(audio)
-                url_pdf = subir_a_firebase_storage(pdf)
-
-                # Guardar usando la base de datos relacional seleccionada dinámicamente
+                # Guardado en bases relacionales (postgres_sena, mysql_db, sqlite_alternativa, default)
+                # Guarda el archivo en MEDIA_ROOT/<upload_to>/ y registra la ruta en PostgreSQL/SQL
                 ReporteVial.objects.using(db_elegida).create(
                     tipo_incidente=tipo,
                     descripcion=desc,
                     latitud=float(lat) if lat else None,
                     longitud=float(lon) if lon else None,
-                    foto=url_foto,
-                    video=url_video,
-                    audio=url_audio,
-                    pdf=url_pdf
+                    foto=foto,
+                    video=video,
+                    audio=audio,
+                    pdf=pdf
                 )
+
+            return redirect(f'/?db_target={db_elegida}')
         except Exception as e:
             error = f"Error al guardar en la BD '{db_elegida}': {e}"
-
-        return redirect(f'/?db_target={db_elegida}')
 
     # 3. Consultar los reportes usando la base de datos seleccionada
     try:
@@ -81,24 +69,14 @@ def index(request):
                     'descripcion': d.get('descripcion'),
                     'latitud': d.get('latitud'),
                     'longitud': d.get('longitud'),
+                    'foto': d.get('foto'),
+                    'video': d.get('video'),
+                    'audio': d.get('audio'),
+                    'pdf': d.get('pdf'),
                     'fecha_creacion': 'Reciente en Atlas'
                 })
-        elif db_elegida == 'firebase':
-            # Consulta en Firebase Firestore
-            db_firestore = firestore.client()
-            docs = db_firestore.collection('reportes_viales').stream()
-            reportes = []
-            for doc in docs:
-                data = doc.to_dict()
-                reportes.append({
-                    'tipo_incidente': data.get('tipo_incidente'),
-                    'descripcion': data.get('descripcion'),
-                    'latitud': data.get('latitud'),
-                    'longitud': data.get('longitud'),
-                    'fecha_creacion': data.get('fecha_creacion', 'Reciente en Cloud')
-                })
         else:
-            # Consulta relacional con Django ORM
+            # Consulta relacional con Django ORM (incluyendo postgres_sena)
             reportes = ReporteVial.objects.using(db_elegida).all().order_by('-fecha_creacion')
     except Exception as e:
         error = f"Error al conectar con la base de datos '{db_elegida}': {e}"

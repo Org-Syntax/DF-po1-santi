@@ -42,6 +42,8 @@
     .btn-gps { background: #10b981; color: white; margin-bottom: 0.5rem; }
     .btn-submit { background: #f59e0b; color: #0f172a; font-size: 1rem; margin-top: 1rem; }
     .geo-status { background: #0f172a; padding: 0.6rem; border-radius: 6px; font-size: 0.8rem; color: #94a3b8; text-align: center; }
+    .alert-error { background: #7f1d1d; border: 1px solid #ef4444; color: #fecaca; padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.85rem; }
+    .file-path { font-size: 0.78rem; color: #94a3b8; margin-top: 0.4rem; word-break: break-all; }
     hr { margin: 1.5rem 0; border-color: #334155; }
     .historial-item { background: #0f172a; padding: 1rem; border-radius: 10px; margin-bottom: 1rem; border: 1px solid #334155; }
     
@@ -90,6 +92,10 @@
     </div>
 
     <h1>🚨 Reporte Vial en Vivo</h1>
+
+    {% if error %}
+      <div class="alert-error">⚠️ {{ error }}</div>
+    {% endif %}
 
     <!-- 🗄️ SELECTOR DE BASES DE DATOS (REQUERIMIENTO SENA) -->
     <div style="background: #0f172a; border: 1px solid #f59e0b; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
@@ -184,30 +190,43 @@
           <p><a href="https://www.google.com/maps/search/?api=1&query={{ r.latitud|stringformat:'.6f' }},{{ r.longitud|stringformat:'.6f' }}" target="_blank" style="color:#38bdf8;">🗺️ Ver en Google Maps</a></p>
         {% endif %}
 
-        {% if r.foto %}<img src="{{ r.foto.url }}" style="width:100%; margin-top:0.5rem; border-radius:6px;">{% endif %}
+        {% if r.foto %}
+          <p class="file-path">📸 Archivo foto: {{ r.foto.name|default:r.foto }}</p>
+          {% if r.foto.url %}
+            <img src="{{ r.foto.url }}" style="width:100%; margin-top:0.5rem; border-radius:6px;">
+          {% endif %}
+        {% endif %}
 
         {% if r.video %}
-          <video controls playsinline style="width:100%; margin-top:0.5rem; border-radius:6px;">
-            <source src="{{ r.video.url }}">
-            Tu navegador no soporta la reproducción de este video.
-          </video>
+          <p class="file-path">🎥 Archivo video: {{ r.video.name|default:r.video }}</p>
+          {% if r.video.url %}
+            <video controls playsinline style="width:100%; margin-top:0.5rem; border-radius:6px;">
+              <source src="{{ r.video.url }}">
+              Tu navegador no soporta la reproducción de este video.
+            </video>
+          {% endif %}
         {% endif %}
 
         {% if r.audio %}
-          <audio controls style="width:100%; margin-top:0.5rem;">
-            <source src="{{ r.audio.url }}">
-            Tu navegador no soporta la reproducción de audio.
-          </audio>
+          <p class="file-path">🎙️ Archivo audio: {{ r.audio.name|default:r.audio }}</p>
+          {% if r.audio.url %}
+            <audio controls style="width:100%; margin-top:0.5rem;">
+              <source src="{{ r.audio.url }}">
+              Tu navegador no soporta la reproducción de audio.
+            </audio>
+          {% endif %}
         {% endif %}
 
         <!-- 📄 MÓDULO DE VISUALIZACIÓN Y DESCARGA DE PDF EN EL HISTORIAL -->
         {% if r.pdf %}
           <div class="pdf-container">
-            <span style="font-size: 0.85rem; color: #f8fafc;">📄 Documento PDF Adjunto</span>
-            <div class="pdf-actions">
-              <a href="{{ r.pdf.url }}" target="_blank" class="btn-pdf btn-pdf-view">👁️ Ver PDF</a>
-              <a href="{{ r.pdf.url }}" download class="btn-pdf btn-pdf-download">📥 Descargar PDF</a>
-            </div>
+            <span style="font-size: 0.85rem; color: #f8fafc;">📄 PDF: {{ r.pdf.name|default:r.pdf }}</span>
+            {% if r.pdf.url %}
+              <div class="pdf-actions">
+                <a href="{{ r.pdf.url }}" target="_blank" class="btn-pdf btn-pdf-view">👁️ Ver PDF</a>
+                <a href="{{ r.pdf.url }}" download class="btn-pdf btn-pdf-download">📥 Descargar PDF</a>
+              </div>
+            {% endif %}
           </div>
         {% endif %}
 

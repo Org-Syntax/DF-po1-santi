@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 # =====================================================================
 # TABLA 1: Perfil del Conductor
 # =====================================================================
@@ -51,17 +52,17 @@ class ReporteVial(models.Model):
     descripcion = models.TextField(blank=True, null=True)
     latitud = models.FloatField(blank=True, null=True)
     longitud = models.FloatField(blank=True, null=True)
-    
+
     foto = models.ImageField(upload_to='fotos/', blank=True, null=True)
     video = models.FileField(upload_to='videos/', blank=True, null=True)
     audio = models.FileField(upload_to='audios/', blank=True, null=True)
     pdf = models.FileField(upload_to='pdfs/', blank=True, null=True)
-    
+
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     categorias = models.ManyToManyField(CategoriaIncidente, related_name='reportes_viales', blank=True)
 
     class Meta:
-        db_table = 'reportes_reportevial'  # Apuntando al nombre correcto en MySQL
+        db_table = 'reportes_reportevial'
         verbose_name = "Reporte Vial"
         verbose_name_plural = "Reportes Viales"
 
